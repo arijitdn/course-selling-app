@@ -20,7 +20,7 @@ userRouter.post("/signup", async function (req, res) {
   }
 
   const existingUser = await UserModel.findOne({
-    email,
+    email: data.email,
   });
 
   if (existingUser) {
@@ -31,11 +31,11 @@ userRouter.post("/signup", async function (req, res) {
     return;
   }
 
-  const hashedPassword = bcrypt.hash(data.password, 5);
+  const hashedPassword = await bcrypt.hash(data.password, 5);
   await UserModel.create({
-    firstName,
-    lastName,
-    email,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
     password: hashedPassword,
   });
 
@@ -56,7 +56,7 @@ userRouter.post("/signin", async function (req, res) {
   }
 
   const user = await UserModel.findOne({
-    email,
+    email: data.email,
   });
 
   if (!user) {
@@ -77,9 +77,12 @@ userRouter.post("/signin", async function (req, res) {
     return;
   }
 
-  const token = jwt.sign({
-    userId: user._id,
-  });
+  const token = jwt.sign(
+    {
+      userId: user._id,
+    },
+    process.env.JWT_SECRET
+  );
 
   res.json({
     message: "Signed in successfully",
