@@ -1,6 +1,6 @@
 const { Router } = require("express");
 
-const { authMiddleware } = require("../middlewares/auth.middleware");
+const { sellerAuthMiddleware } = require("../middlewares/auth.middleware");
 const { signInSchema, signUpSchema } = require("../schemas/zodSchemas");
 const { SellerModel } = require("../schemas/sellerSchema");
 
@@ -80,7 +80,7 @@ sellerRouter.post("/signin", async function (req, res) {
     {
       userId: user._id,
     },
-    process.env.JWT_ADMIN_SECRET
+    process.env.JWT_SELLER_SECRET
   );
 
   res.json({
@@ -89,6 +89,6 @@ sellerRouter.post("/signin", async function (req, res) {
   });
 });
 
-sellerRouter.post("/course", authMiddleware, function (req, res) {});
+sellerRouter.post("/course", sellerAuthMiddleware, function (req, res) {});
 
 module.exports = { sellerRouter };
