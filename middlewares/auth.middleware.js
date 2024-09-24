@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
-const { CONSTANTS } = require("../constants");
 
-async function auth(req, res, next) {
+async function authMiddleware(req, res, next) {
   const token = req.headers.token;
   if (!token) {
     res.status(403).json({
@@ -11,7 +10,7 @@ async function auth(req, res, next) {
     return;
   }
 
-  const response = jwt.verify(token, CONSTANTS.JWT_SECRET);
+  const response = jwt.verify(token, process.env.JWT_SECRET);
 
   if (response) {
     req.userId = response.userId;
@@ -22,3 +21,5 @@ async function auth(req, res, next) {
     });
   }
 }
+
+module.exports = { authMiddleware };
