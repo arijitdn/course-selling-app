@@ -4,6 +4,9 @@ const jwt = require("jsonwebtoken");
 
 const { signUpSchema, signInSchema } = require("../schemas/zodSchemas");
 const { UserModel } = require("../schemas/userSchema");
+const { authMiddleware } = require("../middlewares/auth.middleware");
+const { PurchaseModel } = require("../schemas/purchaseSchema");
+const { CourseModel } = require("../schemas/courseSchema");
 
 const userRouter = Router();
 
@@ -90,6 +93,15 @@ userRouter.post("/signin", async function (req, res) {
   });
 });
 
-userRouter.post("/purchases", function (req, res) {});
+userRouter.get("/purchases", authMiddleware, async function (req, res) {
+  const userId = req.userId;
+  const courses = await PurchaseModel.find({
+    userId,
+  });
+
+  res.json({
+    courses,
+  });
+});
 
 module.exports = { userRouter };
