@@ -12,4 +12,11 @@ const signInSchema = z.object({
   password: z.string(),
 });
 
-module.exports = { signUpSchema, signInSchema };
+const courseSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  imageUrl: z.string().url(),
+  price: z.number(),
+});
+
+module.exports = { signUpSchema, signInSchema, courseSchema };

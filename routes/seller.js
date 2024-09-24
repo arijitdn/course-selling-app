@@ -1,8 +1,15 @@
 const { Router } = require("express");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const { sellerAuthMiddleware } = require("../middlewares/auth.middleware");
-const { signInSchema, signUpSchema } = require("../schemas/zodSchemas");
+const {
+  signInSchema,
+  signUpSchema,
+  courseSchema,
+} = require("../schemas/zodSchemas");
 const { SellerModel } = require("../schemas/sellerSchema");
+const { CourseModel } = require("../schemas/courseSchema");
 
 const sellerRouter = Router();
 
@@ -89,6 +96,30 @@ sellerRouter.post("/signin", async function (req, res) {
   });
 });
 
-sellerRouter.post("/course", sellerAuthMiddleware, function (req, res) {});
+sellerRouter.post("/course", sellerAuthMiddleware, async function (req, res) {
+  const sellerId = req.userId;
+  const { success, data } = courseSchema.safeParse(req.body);
+
+  if (!success) {
+    res.status(403).json({
+      message: "Something went wrong",
+    });
+
+    return;
+  }
+
+  const createdCourse = await CourseModel.create({
+    title: data.title,
+    description: data.description,
+    imageUrl: data.imageUrl,
+    price: data.price,
+    creatorId: sellerId,
+  });
+
+  res.json({
+    message: `Course created successfully`,
+    courseId: createdCourse._id,
+  });
+});
 
 module.exports = { sellerRouter };
