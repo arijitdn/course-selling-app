@@ -122,4 +122,58 @@ sellerRouter.post("/course", sellerAuthMiddleware, async function (req, res) {
   });
 });
 
+sellerRouter.put("/course", sellerAuthMiddleware, async function (req, res) {
+  const sellerId = req.userId;
+  const { courseId } = req.body;
+
+  const course = await CourseModel.findOne({
+    creatorId: sellerId,
+    _id: courseId,
+  });
+
+  if (!course) {
+    res.status(403).send({
+      message: "Course not found",
+    });
+  }
+
+  const { data, success } = courseSchema.safeParse(req.body);
+  if (!success) {
+    res.status(403).json({
+      message: "Something went wrong",
+    });
+
+    return;
+  }
+
+  await CourseModel.updateOne(
+    {
+      _id: courseId,
+      creatorId: sellerId,
+    },
+    {
+      title: data.title,
+      description: data.description,
+      price: data.price,
+      imageUrl: data.imageUrl,
+    }
+  );
+
+  res.json({
+    message: "Updated course details",
+  });
+});
+
+sellerRouter.get("/courses", sellerAuthMiddleware, async function (req, res) {
+  const sellerId = req.userId;
+
+  const courses = await CourseModel.find({
+    creatorId: sellerId,
+  });
+
+  res.json({
+    courses,
+  });
+});
+
 module.exports = { sellerRouter };
